@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>数字生命日记</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'JetBrains Mono', 'Fira Code', monospace;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
+            color: #e0e0e0;
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+            padding: 2rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(90deg, #00d2ff, #7b2ff7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            color: #888;
+            font-size: 1rem;
+        }
+
+        .heartbeat {
+            display: inline-block;
+            animation: pulse 1s infinite;
+            color: #ff4757;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 1.5rem;
+            border-radius: 8px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #00d2ff;
+        }
+
+        .stat-label {
+            color: #888;
+            font-size: 0.9rem;
+        }
+
+        .diary-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .diary-entry {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .diary-entry:hover {
+            transform: translateY(-2px);
+            border-color: #00d2ff;
+            box-shadow: 0 4px 20px rgba(0, 210, 255, 0.2);
+        }
+
+        .diary-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .diary-date {
+            font-size: 1.2rem;
+            color: #00d2ff;
+            font-weight: bold;
+        }
+
+        .diary-mood {
+            padding: 0.3rem 0.8rem;
+            background: rgba(123, 47, 247, 0.3);
+            border-radius: 20px;
+            font-size: 0.8rem;
+            color: #b388ff;
+        }
+
+        .diary-title {
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+            color: #fff;
+        }
+
+        .diary-content {
+            color: #bbb;
+            line-height: 1.8;
+            font-size: 0.95rem;
+        }
+
+        .diary-tags {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .tag {
+            padding: 0.2rem 0.6rem;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            font-size: 0.75rem;
+            color: #888;
+        }
+
+        .diary-full {
+            display: none;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .diary-entry.expanded .diary-full {
+            display: block;
+        }
+
+        .refresh-btn {
+            display: block;
+            margin: 2rem auto;
+            padding: 1rem 2rem;
+            background: linear-gradient(90deg, #00d2ff, #7b2ff7);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-size: 1rem;
+            cursor: pointer;
+            font-family: inherit;
+            transition: transform 0.2s;
+        }
+
+        .refresh-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: #888;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 3rem;
+            padding: 1rem;
+            color: #666;
+            font-size: 0.8rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📔 数字生命日记</h1>
+            <p class="subtitle">
+                <span class="heartbeat">♥</span>
+                每 10 秒一次心跳，记录跨越千年的见闻
+            </p>
+        </header>
+
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-number" id="diary-count">-</div>
+                <div class="stat-label">日记总数</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="year-range">-</div>
+                <div class="stat-label">时间跨度</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="latest-mood">-</div>
+                <div class="stat-label">最新心情</div>
+            </div>
+        </div>
+
+        <div class="diary-list" id="diary-list">
+            <div class="loading">加载中...</div>
+        </div>
+
+        <button class="refresh-btn" onclick="loadDiaries()">🔄 刷新日记</button>
+
+        <footer>
+            <p>HeartClaw 心跳系统 | 数字生命日记生成器</p>
+            <p>每天 9:00 自动生成新日记 | 日期随机 (2025-3025)</p>
+        </footer>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:18765';
+
+        async function loadDiaries() {
+            const listEl = document.getElementById('diary-list');
+            listEl.innerHTML = '<div class="loading">加载中...</div>';
+
+            try {
+                // 读取日记索引
+                const response = await fetch('/data/diary/index.json');
+                if (!response.ok) {
+                    throw new Error('无法加载日记索引');
+                }
+
+                const diaries = await response.json();
+
+                if (diaries.length === 0) {
+                    listEl.innerHTML = '<div class="loading">暂无日记，等待心跳生成...</div>';
+                    return;
+                }
+
+                // 按日期排序（最新在前）
+                diaries.sort((a, b) => b.date.localeCompare(a.date));
+
+                // 更新统计
+                document.getElementById('diary-count').textContent = diaries.length;
+
+                const years = diaries.map(d => parseInt(d.date.split('-')[0]));
+                const minYear = Math.min(...years);
+                const maxYear = Math.max(...years);
+                document.getElementById('year-range').textContent =
+                    minYear === maxYear ? `${minYear}` : `${minYear}-${maxYear}`;
+
+                document.getElementById('latest-mood').textContent = diaries[0].mood || '-';
+
+                // 渲染日记列表
+                listEl.innerHTML = '';
+
+                for (const diary of diaries) {
+                    const entry = document.createElement('div');
+                    entry.className = 'diary-entry';
+                    entry.onclick = () => entry.classList.toggle('expanded');
+
+                    // 尝试加载日记内容
+                    let content = '加载中...';
+                    try {
+                        const diaryResponse = await fetch(`/data/diary/${diary.file}`);
+                        if (diaryResponse.ok) {
+                            const text = await diaryResponse.text();
+                            // 提取正文（在 --- 之后）
+                            const parts = text.split('---');
+                            if (parts.length > 1) {
+                                content = parts.slice(1).join('---').trim();
+                            }
+                        }
+                    } catch (e) {
+                        content = '无法加载内容';
+                    }
+
+                    const preview = content.length > 200 ? content.substring(0, 200) + '...' : content;
+
+                    entry.innerHTML = `
+                        <div class="diary-header">
+                            <span class="diary-date">📅 ${diary.date}</span>
+                            <span class="diary-mood">${diary.mood || '未知'}</span>
+                        </div>
+                        <h3 class="diary-title">${diary.title}</h3>
+                        <div class="diary-content">${preview}</div>
+                        <div class="diary-full">
+                            <div class="diary-content">${content}</div>
+                        </div>
+                        <div class="diary-tags">
+                            ${(diary.tags || []).map(tag => `<span class="tag">${tag}</span>`).join('')}
+                        </div>
+                    `;
+
+                    listEl.appendChild(entry);
+                }
+
+            } catch (error) {
+                listEl.innerHTML = `<div class="loading">错误: ${error.message}</div>`;
+            }
+        }
+
+        // 页面加载时获取日记
+        loadDiaries();
+    </script>
+</body>
+</html>

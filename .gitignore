@@ -1,0 +1,23 @@
+# === 运行时数据（个人内容，不公开）===
+data/
+heart.db
+
+# === 环境变量（含 API keys）===
+.env
+
+# === Python ===
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+
+# === 系统 ===
+.DS_Store
+Thumbs.db
+
+# === 编辑器 ===
+.vscode/
+.idea/
+*.swp
+*.swo
