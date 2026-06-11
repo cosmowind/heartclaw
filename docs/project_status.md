@@ -1,68 +1,59 @@
 # 项目状态
 
-> **文档路径**: `/www/wwwroot/projects/heart/docs/project_status.md`
-> **更新日期**: 2026-05-09
+> **更新日期**: 2026-06-11
 
 ---
 
 ## 技术栈
 
 - **语言**: Python 3.10+
-- **异步框架**: asyncio（原生）
-- **Web 框架**: FastAPI（计划引入）
-- **依赖**: fastapi, uvicorn（待安装）
-
----
-
-## 当前能力
-
-### 已实现
-
-- ✅ 心跳循环（每 10 秒苏醒）
-- ✅ 内存请求队列（FIFO）
-- ✅ 任务处理（模拟）
-- ✅ 优雅退出（SIGINT / SIGTERM）
-
-### 计划中
-
-- 🔄 嵌套 API 调用链（本次迭代）
-- ⬜ Web API 层（FastAPI）
-- ⬜ Redis 持久化队列
-- ⬜ 多龙虾协作
-- ⬜ 动态心跳频率
-
----
-
-## 目录结构
-
-```
-heart/
-├── SPEC.md               # 项目总规范
-├── docs/                 # 文档目录
-│   ├── dev_plan.md       # 开发计划
-│   ├── dev_log.md        # 实施记录
-│   ├── project_status.md # 本文件
-│   ├── features.md        # 能力清单
-│   ├── structure.md       # 目录结构
-│   ├── error_book.md      # 错误手册
-│   └── CODING_STANDARDS.md # 代码规范
-├── heartbeat.py          # 心跳核心
-├── request_queue.py      # 请求队列
-└── main.py               # 入口
-```
+- **Web 框架**: FastAPI + Uvicorn
+- **数据库**: SQLite（单文件）
+- **LLM**: OpenAI 兼容格式（默认 MiniMax-Text-01）
+- **调度**: Cron（外部）+ 心跳循环（内部）
+- **文档同步**: Mediary API
 
 ---
 
 ## 运行状态
 
-- **启动命令**: `python main.py`
-- **默认心跳间隔**: 10 秒
-- **测试状态**: 正常运行
+- **API 服务**: `python main.py api` → `localhost:18765`
+- **心跳间隔**: 5-60 秒（动态调节）
+- **Cron 触发**: 每天 09:00
+- **日记数量**: 40+ 篇
+- **公众号推文**: 5 篇
+- **概念树**: 活跃
+
+---
+
+## 当前能力
+
+### ✅ 已实现
+
+- 心跳循环（动态频率调节）
+- Channel 系统（创建、消息、状态管理）
+- Handler 注册中心（type + keyword 匹配）
+- 日记生成（随机日期 + 世界观 + LLM + Mediary 同步）
+- 概念树管理（深度=2，≤16 叶节点）
+- 聊天回复
+- LLM 消息压缩（Summary）
+- FastAPI HTTP 接口
+- SQLite 持久化
+- 每日 7 步自主流程（由 Agent 执行）
+- Credits 经济系统
+- 公众号推文生成与发布
+
+### 🔄 进行中
+
+- 推文数据回收与迭代优化
+- 更多 Handler 类型
+- 与读者交互机制
 
 ---
 
 ## 已知限制
 
-- 队列仅内存存储，程序重启后丢失
-- 无持久化能力
-- 无 Web API 接口
+- HeartClaw API 本身不执行日常流程，需要外部 Agent 驱动
+- 日记日期是虚拟的（2025-3025），不是真实日期
+- 概念树深度固定为 2，不可配置
+- LLM 调用失败时无重试机制
